@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" id="containerinputs">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="border p-3 my-3 position-relative" id="get-box">
@@ -30,9 +30,10 @@
                     <div class="col-md-6">
                         <div class="border p-3 my-3 position-relative" id="post-box">
                             <h6>Ingresar nuevo registro</h6>
-                            <input type="text" id="inputPostNombre" class="form-control my-1" placeholder="Nombre">
-                            <input type="text" id="inputPostApellido" class="form-control my-1" placeholder="Apellido">
-                            <button id="btnPost" class="btn btn-success position-absolute bottom-0 mb-3" >
+                            <input  onkeyup="turnOffDisabled('inputPostNombre','btnPost')" type="text" id="inputPostNombre" class="form-control my-1" placeholder="Nombre">
+
+                            <input onkeyup="turnOffDisabled('inputPostNombre','btnPost')" type="text" id="inputPostApellido" class="form-control my-1" placeholder="Apellido">
+                            <button id="btnPost" class="btn btn-success position-absolute bottom-0 mb-3" disabled>
                                 Agregar</button>
                         </div>
                     </div>
@@ -41,8 +42,9 @@
                     <div class="col-md-6">
                         <div class="border p-3 my-3 position-relative" id="put-box">
                             <h6>Modificar registro</h6>
-                            <input type="number" id="inputPutId" class="form-control"
+                            <input onkeyup="turnOffDisabled('inputPutId','btnPut')" type="number" id="inputPutId" class="form-control"
                                 placeholder="ID del registro a modificar">
+
                             <button id="btnPut" class="btn btn-warning position-absolute bottom-0 mb-3" disabled>
                                 Modificar</button>
                         </div>
@@ -50,7 +52,7 @@
                     <div class="col-md-6">
                         <div class="border p-3 my-3 position-relative" id="delete-box">
                             <h6>Eliminar registro</h6>
-                            <input type="number" id="inputDelete" class="form-control" placeholder="ID a eliminar">
+                            <input onkeyup="turnOffDisabled('inputDelete','btnDelete')" type="number" id="inputDelete" class="form-control" placeholder="ID a eliminar">
                             <button id="btnDelete" class="btn btn-danger position-absolute bottom-0 mb-3" disabled>
                                 Borrar</button>
                         </div>
@@ -61,6 +63,7 @@
                 <ul class="border bg-dark text-white my-3 list-group list-group-flush" id="results"></ul>
             </div>
         </div>
+
     </main>
     <footer class="my-5 pt-5 text-muted text-center text-small">
         <p class="mb-1">Este sitio forma parte de <a href="https://jovenesaprogramar.edu.uy/" target="_blank">Jovenes a
@@ -70,6 +73,8 @@
     <div class="alert alert-danger fade" id="alert-error" role="alert">
         Algo salió mal...
     </div>
+
+
     <div class="modal fade" tabindex="-1" id="dataModal">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -81,7 +86,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btnSendChanges" disabled>Guardar</button>
+                    <button type="button" class="btn btn-primary" id="btnSendChanges">Guardar</button>
                 </div>
             </div>
         </div>

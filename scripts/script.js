@@ -24,9 +24,16 @@ const results = $('#results')
 
 const alert_error = $('#alert-error')
 
-function fetching(peticion, url) {
+const modalBtn = $('#btnSendChanges')
 
-    
+const inputPutNombre = $('#inputPutNombre');
+const inputPutApellido = $('#inputPutApellido');
+
+
+const modal = new bootstrap.Modal(document.getElementById('dataModal'), null)
+
+
+function fetching(peticion, url) {
 
     return fetch(url,
         {method: peticion.method,
@@ -60,40 +67,53 @@ function showAlert(){
     setTimeout(()=>{
         alert_error.classList.remove('show')
     },5000)
+
+    return false
+}
+
+async function getSingleUser(id){
+
+    if(id.length <= 0) return showAlert();
+
+    const user = await fetching({method:'GET'},url + 'users/'+ id)
+
+    data = user
+
+    if(!data){
+        return showAlert()
+    }
+
+    results.textContent = "";
+
+    listElements(data)
+
+    return user
+}
+
+async function getAllUsers(){
+    data = await fetching({method:'GET'},url + 'users')
+
+    if(!data){
+        return showAlert()
+    }
+
+    results.textContent = "";
+
+    data.forEach(element =>{
+        listElements(element)
+    })
 }
 
 
 btnGet1.addEventListener('click',async (event)=>{
     event.preventDefault()
-
     
 
     if(inputGet1Id.value === ""){
-
-        data = await fetching({method:'GET'},url + 'users')
-
-        if(!data){
-            return showAlert()
-        }
-
-        results.textContent = "";
-
-        data.forEach(element =>{
-            listElements(element)
-        })
+        getAllUsers()
 
     }else{
-        data = await fetching({method:'GET'},url + 'users/'+ inputGet1Id.value)
-
-        if(!data){
-            return showAlert()
-        }
-
-        results.textContent = "";
-
-        listElements(data)
-
-        console.log(data);
+        getSingleUser(inputGet1Id.value)
     }
 
 })
@@ -116,6 +136,75 @@ btnPost.addEventListener('click',async (event)=>{
     results.textContent = "";
 
 })
+
+
+btnPut.addEventListener('click', async (event)=>{
+    event.preventDefault()
+
+    const user = await getSingleUser(inputPutId.value);
+
+    console.log(user);
+
+    if(user){
+        inputPutNombre.value = user.name
+        inputPutApellido.value = user.lastname
+        modal.toggle()
+    }
+
+
+})
+
+modalBtn.addEventListener('click', async (event)=>{
+    event.preventDefault()
+
+    const user = {name:$('#inputPutNombre').value, lastname:$('#inputPutApellido').value}
+
+    const userUpdated = await fetching({method:'PUT',body:user}, url + 'users/' + $('#inputPutId').value)
+
+    results.textContent = ""
+
+    listElements(userUpdated)
+
+    modal.toggle()
+})
+
+
+btnDelete.addEventListener('click', async (event) =>{
+    event.preventDefault()
+
+    console.log(inputDelete.value);
+
+    const deleting = await fetching({method:'DELETE'}, url + 'users/' + inputDelete.value)
+
+    await getAllUsers()
+})
+
+function onlyForNewUser (){
+    if(inputPostNombre.value != "" && inputPostApellido.value !="" ){
+        btnPost.disabled = false
+    }else{
+        btnPost.disabled = true
+    }
+}
+
+function turnOffDisabled (input,btn){
+
+    const myInput = $(`#${input}`)
+    const myBtn = $(`#${btn}`)
+
+    if(input == inputPostNombre.id) return onlyForNewUser()
+
+    console.log('funciona');
+    if(myInput.value != ""){
+        myBtn.disabled = false
+    }else{
+        myBtn.disabled = true
+    }
+}
+
+
+
+
 
 
 
