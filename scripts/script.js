@@ -1,210 +1,124 @@
-let url = 'https://6363a8a68a3337d9a2e39ca4.mockapi.io/'
+import api_handler from './api_handler.js';
 
-let data = "";
+const api = new api_handler('https://6363a8a68a3337d9a2e39ca4.mockapi.io/');
 
+const $ = (selector) => document.querySelector(selector);
 
-function $(id) {
-    return document.querySelector(id)
-}
-
-const inputGet1Id = $('#inputGet1Id')
-const btnGet1 = $('#btnGet1')
-
-const inputPostNombre = $('#inputPostNombre')
-const inputPostApellido = $('#inputPostApellido')
-const btnPost = $('#btnPost')
-
-const inputPutId = $('#inputPutId')
-const btnPut = $('#btnPut')
-
-const inputDelete = $('#inputDelete')
-const btnDelete = $('#btnDelete')
-
-const results = $('#results')
-
-const alert_error = $('#alert-error')
-
-const modalBtn = $('#btnSendChanges')
+const modal = new bootstrap.Modal(document.getElementById('dataModal'), null);
 
 const inputPutNombre = $('#inputPutNombre');
 const inputPutApellido = $('#inputPutApellido');
 
-
-const modal = new bootstrap.Modal(document.getElementById('dataModal'), null)
-
-
-function fetching(peticion, url) {
-
-    return fetch(url,
-        {method: peticion.method,
-        body: JSON.stringify(peticion.body),
-        headers:{"Content-Type":"application/json"}})
-
-
-    .then(res => {
-
-        if(res.ok){
-            return res.json()
-        }else{
-            return false
-        }
-    })
-}
-
 function listElements(element) {
-    let li = `
-    <li class="list-item-group">
-    <p>ID: ${element.id}</p>
-    <p>Name: ${element.name}</p>
-    <p>Lastname: ${element.lastname}</p>
-    </li>`
+    const results = $('#results');
+    
+    results.textContent = '';
 
-    results.insertAdjacentHTML("beforeend",li)
+    if(element.length) {
+        element.forEach(entry => {
+            let li = `
+            <li class="list-item-group">
+                <p>ID: ${entry.id}</p>
+                <p>Name: ${entry.name}</p>
+                <p>Lastname: ${entry.lastname}</p>
+            </li>`
+        
+            results.insertAdjacentHTML("beforeend",li)
+        })
+    } else {
+        let li = `
+            <li class="list-item-group">
+                <p>ID: ${element.id}</p>
+                <p>Name: ${element.name}</p>
+                <p>Lastname: ${element.lastname}</p>
+            </li>`
+        
+        results.insertAdjacentHTML("beforeend",li)
+    }
+
 }
 
 function showAlert(){
-    alert_error.classList.add('show')
+    const alert_error = $('#alert-error');
+
+    alert_error.classList.add('show');
+
     setTimeout(()=>{
-        alert_error.classList.remove('show')
-    },5000)
+        alert_error.classList.remove('show');
+    },5000);
 
-    return false
+    return false;
 }
 
-async function getSingleUser(id){
-
-    if(id.length <= 0) return showAlert();
-
-    const user = await fetching({method:'GET'},url + 'users/'+ id)
-
-    data = user
-
-    if(!data){
-        return showAlert()
-    }
-
-    results.textContent = "";
-
-    listElements(data)
-
-    return user
-}
-
-async function getAllUsers(){
-    data = await fetching({method:'GET'},url + 'users')
-
-    if(!data){
-        return showAlert()
-    }
-
-    results.textContent = "";
-
-    data.forEach(element =>{
-        listElements(element)
-    })
-}
-
-
-btnGet1.addEventListener('click',async (event)=>{
-    event.preventDefault()
-    
+$('#btnGet1').addEventListener('click',async ()=>{
+    const inputGet1Id = $('#inputGet1Id');
 
     if(inputGet1Id.value === ""){
-        getAllUsers()
+        const users = await api.getAllUsers();
+        
+        if(!users) return showAlert();
 
+        listElements(users);
     }else{
-        getSingleUser(inputGet1Id.value)
+        const user = await api.getSingleUser(inputGet1Id.value);
+        
+        if(!user) return showAlert();
+
+        listElements(user);
     }
 
 })
 
-btnPost.addEventListener('click',async (event)=>{
-    event.preventDefault()
+$('#btnPost').addEventListener('click', async()=>{
+    const inputPostNombre = $('#inputPostNombre');
+    const inputPostApellido = $('#inputPostApellido');
 
-    let newObject = {
+    let user_info = {
         name:inputPostNombre.value,
         lastname:inputPostApellido.value
     }
 
-    data = await fetching({method:'POST',body:newObject}, url + 'users')
-    console.log(data);
+    const newUser = await api.postNewUser(user_info);
+    
+    if(!newUser) return showAlert()
 
-    if(!data){
-        return showAlert()
-    }
-
-    results.textContent = "";
-
+    $('#results').textContent = "";
 })
 
 
-btnPut.addEventListener('click', async (event)=>{
-    event.preventDefault()
+$('#btnPut').addEventListener('click', async ()=>{
+    const inputPutId = $('#inputPutId');
 
-    const user = await getSingleUser(inputPutId.value);
+    const user = await api.getSingleUser(inputPutId.value);
 
-    console.log(user);
+    if(!user) return showAlert();
 
-    if(user){
-        inputPutNombre.value = user.name
-        inputPutApellido.value = user.lastname
-        modal.toggle()
-    }
-
-
+    inputPutNombre.value = user.name
+    inputPutApellido.value = user.lastname
+    api.selectUser(user)
+    modal.toggle()
 })
 
-modalBtn.addEventListener('click', async (event)=>{
-    event.preventDefault()
+inputPutNombre.addEventListener('input', () => api.updateCurrentUser(inputPutNombre.value, false));
+inputPutApellido.addEventListener('input', () => api.updateCurrentUser(false, inputPutApellido.value));
 
-    const user = {name:$('#inputPutNombre').value, lastname:$('#inputPutApellido').value}
+$('#btnSendChanges').addEventListener('click', async ()=>{
+    const user = api.getCurrentUser();
 
-    const userUpdated = await fetching({method:'PUT',body:user}, url + 'users/' + $('#inputPutId').value)
+    const userUpdated = await api.updateUser(user);
 
-    results.textContent = ""
-
-    listElements(userUpdated)
+    listElements(userUpdated);
 
     modal.toggle()
 })
 
 
-btnDelete.addEventListener('click', async (event) =>{
-    event.preventDefault()
+$('#btnDelete').addEventListener('click', async () =>{;
+    const deleting = await api.deleteUser($('#inputDelete').value);
 
-    console.log(inputDelete.value);
+    if(!deleting) return showAlert();
 
-    const deleting = await fetching({method:'DELETE'}, url + 'users/' + inputDelete.value)
+    const users = await api.getAllUsers();
 
-    await getAllUsers()
+    listElements(users);
 })
-
-function onlyForNewUser (){
-    if(inputPostNombre.value != "" && inputPostApellido.value !="" ){
-        btnPost.disabled = false
-    }else{
-        btnPost.disabled = true
-    }
-}
-
-function turnOffDisabled (input,btn){
-
-    const myInput = $(`#${input}`)
-    const myBtn = $(`#${btn}`)
-
-    if(input == inputPostNombre.id) return onlyForNewUser()
-
-    console.log('funciona');
-    if(myInput.value != ""){
-        myBtn.disabled = false
-    }else{
-        myBtn.disabled = true
-    }
-}
-
-
-
-
-
-
-

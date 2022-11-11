@@ -10,7 +10,16 @@
 </head>
 
 <body>
+    <script>
+        function turnOffDisabled(input,btn){
+            const myInput = document.querySelector(`#${input}`)
+            const myBtn = document.querySelector(`#${btn}`)
 
+            if(input == inputPostNombre.id) return inputPostNombre.value != "" && inputPostApellido.value != "" ? btnPost.disabled = false : btnPost.disabled = true;
+
+            myInput.value != "" ? myBtn.disabled = false :  myBtn.disabled = true;
+        }
+    </script>
     <main class="container">
         <div class="row">
             <div class="col-12 text-center my-3">
@@ -30,7 +39,7 @@
                     <div class="col-md-6">
                         <div class="border p-3 my-3 position-relative" id="post-box">
                             <h6>Ingresar nuevo registro</h6>
-                            <input  onkeyup="turnOffDisabled('inputPostNombre','btnPost')" type="text" id="inputPostNombre" class="form-control my-1" placeholder="Nombre">
+                            <input onkeyup="turnOffDisabled('inputPostNombre','btnPost')" type="text" id="inputPostNombre" class="form-control my-1" placeholder="Nombre">
 
                             <input onkeyup="turnOffDisabled('inputPostNombre','btnPost')" type="text" id="inputPostApellido" class="form-control my-1" placeholder="Apellido">
                             <button id="btnPost" class="btn btn-success position-absolute bottom-0 mb-3" disabled>
@@ -92,7 +101,7 @@
         </div>
     </div>
     <script src="scripts/bootstrap.bundle.js"></script>
-    <script src="scripts/script.js"></script>
+    <script src="scripts/script.js" type="module"></script>
 </body>
 
 </html>
